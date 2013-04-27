@@ -3,6 +3,7 @@ var port = process.env.PORT || 1234
   , async = require('async')
   , ejs = require("ejs")
   , redis = require("redis")
+  , Q = require('q')
   , http = require('http');
 
 var app = express()
@@ -34,13 +35,9 @@ app.get("/", function(req, res) {
   res.render("index");
 });
 
-app.get("/api/task/:codeId", function(req, res) {
-
-});
-
-var codeGet = function(research) {
-  return function(callback) {
-    store.get("code:"+research, function(data) {
+var researchGet = function(obj, research) {
+  return function(obj, callback) {
+    store.get("research:"+research, function(data) {
       callback(data);
     });
   }
@@ -57,7 +54,8 @@ io.sockets.on('connection', function (socket) {
 
   socket.on('research', function(research) {
     // getCode // get State // generate Task
-    async.series([codeGet(research), generateNewTask(research),]);
+    // async.series([codeGet(research), generateNewTask(research),]);
+
     socket.emit('task', taskWithCode);
   });
   socket.on('result', function(research) {
