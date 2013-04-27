@@ -1,0 +1,86 @@
+<html>
+    <body>
+        <p id="results">Results:</p>
+        <script tpye="text/javascript">
+            var Research = {
+                client: {
+                    internal: {
+                        isPrime: function(possible) {
+                            if (possible == 2 || possible == 3) {
+                                return true;
+                            }
+                            if (possible % 2 == 0 || possible % 3 == 0) {
+                                return false;   
+                            }
+                            var k = 6;
+                            var max = Math.sqrt(possible);
+                            for (; k <= max; k += 6) {
+                                if (possible % (k+1) == 0 || possible % (k-1) == 0) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                    },
+                    execute: function(params) {
+                        var current = params.highestPrime + 2;
+                        while (!this.internal.isPrime(current)) {
+                            current += 2;
+                        }
+                        return {"nextPrime": current};
+                    }
+                },
+                server: {
+                    updateState: function(state, result) {
+                        if (state === undefined || result === undefined) {
+                            return {"highestPrime": 3};
+                        }
+                        state.highestPrime = Math.max(state.highestPrime, result.nextPrime);
+                        return state;
+                    },
+                    generateTask: function(state) {
+                        return state;
+                    }
+                }
+            }
+
+            var Server = {
+                state: Research.server.updateState(),
+                onConnection: function(client) {
+                    this.client = client;
+                    client.onConnected();
+                },
+                onResearch: function() {
+                    this.client.onTask(Research.server.generateTask(this.state), Research.client);
+                },
+                onResult: function(result, another) {
+                    document.getElementById("results").innerHTML += " " + result.nextPrime;
+                    this.state = Research.server.updateState(this.state, result);
+                    if (another) {
+                        this.client.onTask(Research.server.generateTask(this.state));
+                    }
+                }
+            }
+
+            var Client = {
+                count: 50,
+                emitConnection: function(server) {
+                    this.server = server;
+                    server.onConnection(this);
+                },
+                onConnected: function() {
+                    this.server.onResearch();
+                },
+                onTask: function(task, research) {
+                    if (research !== undefined) {
+                        this.research = research;
+                    }
+                    var result = this.research.execute(task);
+                    this.server.onResult(result, this.count--);
+                }
+            }
+
+            Client.emitConnection(Server);
+        </script>
+    </body>
+</html>
