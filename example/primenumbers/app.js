@@ -2,6 +2,7 @@ var port = process.env.PORT || 1234
   , express = require('express')
   , async = require('async')
   , redis = require("redis")
+  , ejs = require("ejs")
   , Q = require('q')
   , http = require('http');
 
