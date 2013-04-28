@@ -132,10 +132,11 @@ var ResearchCtrl = function(researchId, result) {
         .updateState(ResearchMemory[researchId].state, result, callback);
     },
     saveState: function(newState, callback) {
-      Research.findOneAndUpdate({_id: researchId}, {state: newState}, function(err, doc) {
-        if (err) console.log(err);
-        callback(err, doc);
-      });
+      //Research.findOneAndUpdate({_id: researchId}, {state: newState}, function(err, doc) {
+        //if (err) console.log(err);
+        ResearchMemory[researchId].state = newState;
+        callback(null, ResearchMemory[researchId]);
+      //});
     }
   };
 };
