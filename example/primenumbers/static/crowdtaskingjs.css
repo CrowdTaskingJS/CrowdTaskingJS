@@ -1,12 +1,46 @@
-div.participate {
-    margin-top: 20px;
-    color: red;
+body {
+    font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
 }
-
-div.about {
-    margin-top: 20px;
+.container {
+    width: 500px;
+    margin: auto;
+    border-left: 1px solid #ddd;
+    padding-left: 15px;
 }
-
-div.submit {
-    margin-top: 20px;
+.research, .participate {
+    height: 300px;
+    font-size: 11px;
+    padding: 5px;
+    margin: 10px 0;
+}
+.research {
+    border-bottom: 1px solid #ddd;
+}
+.research div {
+    width: 420px;
+    margin-left: 70px;
+    margin-top: -60px;
+}
+.research div h2 {
+    color: rgb(59, 89, 152);
+    font-size: 11px;
+}
+.research a {
+    text-decoration: none;
+    color: rgb(59, 89, 152);
+}
+.research a:hover {
+    text-decoration: underline;
+}
+.research a.center {
+    display: block;
+    text-align: center;
+}
+.research img {
+    width: 50px;
+    height: 50px;
+}
+.participate {
+    background-color: rgba(200,200,200,0.5);
+    
 }
