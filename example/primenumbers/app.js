@@ -1,23 +1,30 @@
 var port = process.env.PORT || 1234
   , express = require('express')
   , async = require('async')
-  , redis = require("redis")
   , ejs = require("ejs")
   , Q = require('q')
-  , http = require('http');
+  , _ = require('underscore')
+  , mongoose = require('mongoose')
+  , fs = require('fs')
+  , http = require('http')
+  , https = require('https');
+
+if (!process.env.HEROKU) {
+  var privateKey = fs.readFileSync('privatekey.pem').toString()
+    , certificate = fs.readFileSync('certificate.pem').toString();
+
+  var options = {
+    key : privateKey,
+    cert : certificate
+  }
+}
 
 var app = express()
-  , server = app.listen(port)
-  , io = require('socket.io').listen(server);
+  , server = process.env.HEROKU ? app.listen(port) : https.createServer(options, app)
+  , io = require('socket.io').listen(server)
+  , Research = require('./model.js').Research();
 
-var store;
-if (process.env.REDISTOGO_URL) {
-  var rtg   = require("url").parse(process.env.REDISTOGO_URL);
-  store = redis.createClient(rtg.port, rtg.hostname);
-  store.auth(rtg.auth.split(":")[1]);
-} else {
-  store = redis.createClient();
-}
+if ( !process.env.HEROKU) server.listen(port);
 
 app.configure(function () {
   app.set("views", __dirname + "/static");
@@ -34,31 +41,29 @@ app.configure(function () {
 app.get("/", function(req, res) {
   res.render("index");
 });
-
-var researchGet = function(obj, research) {
-  return function(obj, callback) {
-    store.get("research:"+research, function(data) {
-      callback(data);
-    });
-  }
-};
-
-var generateNextTask = function(research) {
-  return function(research, callback) {
-
-  };
-};
+app.get("/api/researches", function(req, res) {
+  Research.find({}, function(err, docs) {
+    if (err) console.log(err);
+    res.json(docs);
+  });
+});
 
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
 
   socket.on('research', function(research) {
-    // getCode // get State // generate Task
-    // async.series([codeGet(research), generateNewTask(research),]);
-
-    socket.emit('task', taskWithCode);
+    Research.findById(research).exec(function(docs) {
+      socket.emit('task', docs);
+    })
   });
-  socket.on('result', function(research) {
-    socket.emit('task', task);
+  socket.on('result', function(research, result) {
+    Research.findOneAndUpdate({_id: research}, {state: result}, function(err, doc) {
+      if (err) console.log(err);
+      socket.emit('task', doc);
+    });
   });
 });
+
+console.log("Listening at port "+ port);
+var test = new Research({title: "asdasdasdasdasd", state: {yo:1}});
+test.save(function(err){ if (err) console.log(err); });
