@@ -11,10 +11,121 @@
         <script src="/crowdtaskingjs.js"></script>
     </head>
     <body>
-        <div class="container">
+<div id="fb-root"></div>
+<script>
+var connected = function(response) {
+    document.getElementById("userid").innerHTML = response.authResponse.userID;
+}
+var notConnected = function(response) {
+    document.getElementById("userid").innerHTML = "no ID";
+}
+var getName = function(response) {
+    document.getElementById("myname").innerHTML = response.name;
+}
+  // Additional JS functions here
+    function login() {
+        FB.login(function(response) {
+            if (response.authResponse) {
+                // connected
+                connected(response);
+             } else {
+                // cancelled
+                notConnected(response);
+            }
+        });
+    }
+
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '501733173221648', // App ID
+      channelUrl : 'crowdtaskingjs.herokuapp.com', // Channel File
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
+    });
+
+    // Additional init code here
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+        // connected
+
+        connected(response);
+        FB.api('/me/friends/?fields=picture.type(small),name,installed', function(response) {
+        //FB.api('/me', function(response) {
+            arr = jQuery.grep(response.data, function(n){
+              return (n.installed === true);
+            });
+            //document.getElementById("myname").innerHTML = arr[0].name;
+            //document.getElementById("mypicture").innerHTML = arr[0].picture.data.url;
+            //$("#mypicture").attr('src', arr[0].picture.data.url)
+            //blob=$("<div class='person'></div>").append("<p class='name'>" + arr[0].name + "</p>")
+            //$("#people").append(blob)
+
+            //var arr = [];
+            $(arr).each(function(index, value){
+                //arr.push($(this).html());
+                //alert('Your name is ' + value.name);
+                blob=$("<div class='person'></div>").append("<p class='name'>" + value.name + "</p>" + "<img id='picture' src=''/>")
+                $("#people").append(blob)
+                $("#picture").attr('src', value.picture.data.url)
+
+                //blob2=$("<div class='person'></div>").append("<img id='picture' src=''/>")
+                //$("#picture").append(blob2)
+            });
+
+            //document.getElementById("pictureurl").innerHTML = response.name;
+            //document.getElementById("my").innerHTML = response.name;
+            //alert('Your name is ' + response.name);
+            console.log(response)
+            console.log(arr)
+        });
+
+      } else if (response.status === 'not_authorized') {
+        // not_authorized
+        login();
+      } else {
+        // not_logged_in
+        login();
+      }
+     });
+
+    };
+
+
+  // Load the SDK Asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
+
+</script>
+
+<div class="navbar navbar-fixed-top-right">  
+  <div class="navbar-inner">  
+    <div class="container">  
+
+    <ul class="nav">  
+      <li class="active">  
+        <a class="brand" href="#">CrowdTaskingJS</a>  
+      </li>  
+      <li><a href="#submit">Submit Task</a></li>  
+      <li><a href="#about">About</a></li>  
+    </ul>  
+
+    </div>  
+  </div>  
+</div> 
+
+<div class="container">
             <div class="leaderboard">
-                <h1>Distributed computing for the masses.</h1>
-                <h3>Contribute your processing power today.</h3>
+                <h1>CrowdTaskingJS</h1>
+                <h3>Distributed computing in your browser</h3>
+                Welcome back <p id="userid"></p>
+                Friends tasking now...<p id="myname"></p>
+                <div id='people'></div>
             </div>
             <div class="row research primenumbers" id="primenumbers">
                 <div class="row">
@@ -37,7 +148,9 @@
                 </div>
             </div>
             <div class="row participate primenumbers">
-                <div class="span12">
+                <div class="span2">
+                </div>
+                <div class="span10">
                     <p>Highest Prime: 227</p>
                     <p>Time since last Prime: 1 hr, 5 min</p>
                     <p class="message"></p>
@@ -45,6 +158,7 @@
                     <a class="btn btn-success btn-large cancel" href="#">Cancel</a>
                 </div>
             </div>
+
             <div class="row research fibonacci" id="fibonacci">
                 <div class="row">
                     <div class="span12">
@@ -65,7 +179,9 @@
                 </div>
             </div>
             <div class="row participate fibonacci">
-                <div class="span12">
+                <div class="span2">
+                </div>
+                <div class="span10">
                     <p>Highest number: 8</p>
                     <p>Time since last results: 18 hrs, 5 min</p>
                     <p class="message"></p>
@@ -73,7 +189,77 @@
                     <a class="btn btn-success btn-large cancel" href="#">Cancel</a>
                 </div>
             </div>
+
+
+<div class="container submit">
+    <div class="row">
+        <h1><a name="submit">Submit</a></h1>
+        <div class="span2">
         </div>
+        <div class="span8">
+            </form> 
+
+            <form action="upload_file.php" method="post" enctype="multipart/form-data">
+            <label for="taskname">Task Name:</label>
+            <input type="text" name="taskname"><br>
+
+            <label for="file">JS Filename:</label>
+            <input type="file" name="file" id="file"><br>
+
+            <input type="submit" name="submit" value="Submit">
+            </form>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="container about">
+    <div class="row">
+        <h1><a name="about">About</a></h1>
+        <p>24 hour Facebook London Hackathon.</p>
+        <div class="span2">
+        </div>
+        <div class="span2">
+            <p>Ryan</p>
+            <img src="/researchjs/img/RyanHarrison.jpg" />
+        </div>
+        <div class="span2">
+            
+        </div>
+
+        <div class="span2">
+            <p>William</p>
+            <img src="/researchjs/img/WilliamMayor.jpg" />
+        </div>
+        <div class="span2">
+            
+        </div>
+
+        <div class="span2">
+            <p>"The Italian"</p>
+            <img src="/researchjs/img/Italian.jpg" />
+        </div>
+        <div class="span2">
+            
+        </div>
+    </div>
+    </div>
+</div>
+
+
+</div>
+<!--
+<div class="container">  
+    <p id="userid"> </p>
+    helloo
+ <form action="demo_form.asp">
+  First name: <input type="text" name="fname"><br>
+  Last name: <input type="text" name="lname"><br>
+  <input type="submit" value="Submit">
+</form> 
+</div>
+--> 
         <footer>
             <p>&copy;CrowdTaskingJS 2013</p>
         </footer>
