@@ -38,6 +38,9 @@ var CT = {
                     event.data._id = "517ca5a905cef40000000001"
                   console.log(event.data);
                     CT.socket.emit("result", event.data);
+                    $("div.participate." + researchId + " .result").text(event.data.result);
+                    CT.socket.emit('result', event.data.result);
+
                 }
             });
 
