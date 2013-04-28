@@ -91,5 +91,5 @@ io.sockets.on('connection', function (socket) {
 });
 
 console.log("Listening at port "+ port);
-var test = new Research({title: "asdasdasdasdasd", state: {yo:1}});
+var test = new Research({title: "Prime numbers", url: "/researchjs/primenumbers"});
 test.save(function(err){ if (err) console.log(err); });
