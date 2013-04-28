@@ -33,14 +33,12 @@ var CT = {
             CT.worker = new Worker("/researchjs/" + CT.researchPath + "/client.js");
             CT.worker.addEventListener('message', function(event) {
                 if ("progress" in event.data) {
-                    $("div.participate." + CT.researchPath + " .progress").text(event.data.progress);
+                    $("#" + CT.researchPath + " .progress").text(event.data.progress);
                 }
                 if ("result" in event.data) {
-                    $("div.participate." + CT.researchPath + " .result").text(event.data.result);
-                    //TODO fix this
                     event.data._id = CT.researchId;
                     CT.socket.emit("result", event.data);
-                    $("div.participate." + CT.researchPath + " .result").text(event.data.result);
+                    $("#" + CT.researchPath + " .result").text(JSON.stringify(event.data.result));
                 }
             });
 
