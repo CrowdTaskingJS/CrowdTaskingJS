@@ -32,7 +32,7 @@ var progress = function(progress) {
 self.addEventListener('message', function(event) {
     if ("task" in event.data) {
         var result = Research.execute(event.data.task);
-        self.postMessage({"results": result});
+        self.postMessage({"result": result});
     }
     if ("cancel" in event.data) {
         self.close();
