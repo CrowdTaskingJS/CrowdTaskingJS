@@ -7,6 +7,7 @@ if (!this.db) {
 
 var ResearchSchema = new Schema({
   title: {type: String, unique: true},
+  description: String,
   url: String,
   state: Schema.Types.Mixed
 });
