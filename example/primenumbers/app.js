@@ -48,6 +48,32 @@ app.get("/api/researches", function(req, res) {
   });
 });
 
+app.post("/canvas/", function(req, res) {
+  var parts = req.body.signed_request.split('.');
+  var encodedSignature = parts[0];
+  var encoded = parts[1];
+  var signature = base64decode(encodedSignature);
+  var decoded = base64decode(encoded);
+  var data = JSON.parse(decoded);
+  if (data.user_id) {
+    res.render("canvas.html", {"name": data.User});
+  } else {
+    res.render("fb_redirect.html");
+  }
+});
+
+var base64encode = function(data) {
+  return new Buffer(data, 'utf8').toString('base64').replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '');
+};
+
+var base64decode = function(data) {
+  while (data.length % 4 !== 0) {
+    data += '=';
+  }
+  data = data.replace(/-/g, '+').replace(/_/g, '/');
+  return new Buffer(data, 'base64').toString('utf-8');
+};
+
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
 

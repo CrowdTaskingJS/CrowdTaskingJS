@@ -1,17 +1,17 @@
 {
-    "name": "crowdtaskingjs",
-    "version": "0.0.1",
-    "dependencies": {
-        "express": ">=2.5.10",
-        "async": ">=0.0.0",
-        "redis": ">=0.0.0",
-        "ejs": ">=0.0.0",
-        "underscore": ">=0.0.0",
-        "mongoose": ">=0.0.0",
-        "q": ">=0.0.0",
-        "socket.io": ">=0.0.0"
-    },
-    "engines": {
-        "node": ">=0.6.x"
-    }
+  "name": "crowdtaskingjs",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": ">=2.5.10",
+    "async": ">=0.0.0",
+    "redis": ">=0.0.0",
+    "ejs": ">=0.0.0",
+    "underscore": "~1.4.4",
+    "mongoose": ">=0.0.0",
+    "q": ">=0.0.0",
+    "socket.io": ">=0.0.0"
+  },
+  "engines": {
+    "node": ">=0.6.x"
+  }
 }
