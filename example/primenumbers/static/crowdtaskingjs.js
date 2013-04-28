@@ -6,12 +6,10 @@ var CT = {
     socketInit: function() {
         CT.socket = io.connect();
         CT.socket.on('connected', function() {
-          console.log("Connected to websockets");
-        })
+            console.log("Connected to websockets");
+        });
         CT.socket.on('task', function(data) {
-          console.log("task");
             if (CT.worker !== undefined) {
-              console.log(data);
                 CT.worker.postMessage({"task": data});
             }
         });
@@ -22,11 +20,11 @@ var CT = {
             CT.stop();
             return false;
         });
-        $("a.participate").click(function() {
+        $("div.research a").click(function() {
             CT.stop();
 
             CT.researchId = $(this).parents("div.research").attr("id");
-            $("div.participate." + CT.researchId).show();
+            //$("div.participate." + CT.researchId).show();
 
             // TODO check this
 
@@ -37,17 +35,14 @@ var CT = {
                 }
                 if ("result" in event.data) {
                     $("div.participate." + CT.researchId + " .result").text(event.data.result);
-                  //TODO fix this
-                    event.data._id = "517ca5a905cef40000000001"
-                  console.log(event.data);
+                    //TODO fix this
+                    event.data._id = "517cc9604a9fa8e624000001"
                     CT.socket.emit("result", event.data);
-                    $("div.participate." + researchId + " .result").text(event.data.result);
-                    CT.socket.emit('result', event.data.result);
-
+                    $("div.participate." + CT.researchId + " .result").text(event.data.result);
                 }
             });
 
-            CT.socket.emit('research', "517ca5a905cef40000000001");
+            CT.socket.emit('research', "517cc9604a9fa8e624000001");
 
             return false;
         });
