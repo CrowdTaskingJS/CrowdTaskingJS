@@ -12,6 +12,7 @@ var CT = {
           console.log("tested", data);
         });
         CT.socket.on('task', function(data) {
+          console.log(data);
             if (CT.worker !== undefined) {
                 CT.worker.postMessage({"task": data});
             }
