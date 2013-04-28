@@ -2,13 +2,13 @@ var mongoose = require('mongoose')
   , Schema = mongoose.Schema;
 
 if (!this.db) {
-  this.db = mongoose.connect(process.env.MONGOHQ_URL || 'mongodb://localhost/crowdtesting_test1');
+  this.db = mongoose.connect(process.env.MONGOHQ_URL || 'mongodb://localhost/crowdtesting_test2');
 }
 
 var ResearchSchema = new Schema({
   title: {type: String, unique: true},
   description: String,
-  url: String,
+  path: {type: String, unique: true},
   state: Schema.Types.Mixed
 });
 

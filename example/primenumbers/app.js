@@ -55,7 +55,7 @@ if ( process.env.HEROKU) {
 
 
 app.configure(function () {
-  app.set("views", __dirname + "/static");
+  app.set("views", __dirname + "/views");
   app.set("view engine", "ejs");
   app.engine("html", ejs.renderFile);
   app.use(express.bodyParser());
@@ -84,10 +84,22 @@ app.post("/canvas/", function(req, res) {
   var decoded = base64decode(encoded);
   var data = JSON.parse(decoded);
   if (data.user_id) {
-    res.render("canvas.html");
+    Research.find({}, function(err, docs) {
+      if (err) console.log(err);
+      res.locals.researches = docs;
+      res.render("canvas.html");
+    });
   } else {
     res.render("fb_redirect.html");
   }
+});
+
+app.get("/canvas/", function(req, res) {
+  Research.find({}, function(err, docs) {
+    if (err) console.log(err);
+    res.locals.researches = docs;
+    res.render("canvas.html");
+  });
 });
 
 var ResearchMemory = {};
@@ -101,7 +113,7 @@ var ResearchPopulate = function (researchId, callback) {
   Research.findById(researchId).exec(function(err, research) {
     if (err || !research) return console.log("DB", err);
     research = research.toObject();
-    research.code = require("./static"+research.url+"/server.js");
+    research.code = require("./static/researchjs/"+research.path+"/server.js");
     ResearchMemory[researchId] = research;
     callback(err, ResearchMemory[researchId]);
   })
@@ -165,9 +177,9 @@ io.sockets.on('connection', function (socket) {
 });
 
 console.log("Listening at port "+ port);
-Research.findOne({url:"/researchjs/primenumbers"}).exec(function(err, doc) {
+Research.findOne({path:"primenumbers"}).exec(function(err, doc) {
   if (doc) return;
 
-  var test = new Research({title: "Prime numbers", url: "/researchjs/primenumbers"});
+  var test = new Research({title: "Compute Primes", path: "primenumbers", description: "Hi! We're researchers from University College London (UCL), UK. We've done goofed and we've forgotten all of the prime numbers! That's right! All of them. Rather than admit this embarrassing oversight, we've decided to ask you, the kind people of Facebook, to help us re-calculate them all. It's a total nightmare and really not something you would expect from a university of our renown. It's almost like this is fictitious research, designed to show only the bare minimum of the potential of this rather spiffing Facebook App."});
   test.save(function(err){ if (err) console.log(err); });
 });

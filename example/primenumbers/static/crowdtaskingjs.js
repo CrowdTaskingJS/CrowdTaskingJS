@@ -23,26 +23,28 @@ var CT = {
         $("div.research a").click(function() {
             CT.stop();
 
-            CT.researchId = $(this).parents("div.research").attr("id");
-            //$("div.participate." + CT.researchId).show();
+            var researchDom = $(this).parents("div.research");
+            CT.researchPath = researchDom.attr("id");
+            CT.researchId = researchDom.data("id");
+            //$("div.participate." + CT.researchPath).show();
 
             // TODO check this
 
-            CT.worker = new Worker("/researchjs/" + CT.researchId + "/client.js");
+            CT.worker = new Worker("/researchjs/" + CT.researchPath + "/client.js");
             CT.worker.addEventListener('message', function(event) {
                 if ("progress" in event.data) {
-                    $("div.participate." + CT.researchId + " .progress").text(event.data.progress);
+                    $("div.participate." + CT.researchPath + " .progress").text(event.data.progress);
                 }
                 if ("result" in event.data) {
-                    $("div.participate." + CT.researchId + " .result").text(event.data.result);
+                    $("div.participate." + CT.researchPath + " .result").text(event.data.result);
                     //TODO fix this
-                    event.data._id = "517cc9604a9fa8e624000001"
+                    event.data._id = CT.researchId;
                     CT.socket.emit("result", event.data);
-                    $("div.participate." + CT.researchId + " .result").text(event.data.result);
+                    $("div.participate." + CT.researchPath + " .result").text(event.data.result);
                 }
             });
 
-            CT.socket.emit('research', "517cc9604a9fa8e624000001");
+            CT.socket.emit('research', CT.researchId);
 
             return false;
         });

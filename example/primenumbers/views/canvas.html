@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>CrowdTaskingJS</title>
+        <meta name="description" content="Distributed computing in your browser" />
+        <link rel="stylesheet" href="/crowdtaskingjs.css" />
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/jquery-1.9.1.min.js"></script>
+        <script src="/crowdtaskingjs.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>CrowdTaskingJS</h1>
+                <h2>Distributed computing in your browser</h2>
+            </div>
+            <% for(var i=0; i<researches.length; i++) {%>
+                <div class="research <%= researches[i].path %>" id="<%= researches[i].path %>" data-id="<%= researches[i]._id %>">
+                    <img src="/researchjs/<%= researches[i].path %>/icon.jpg" />
+                    <div>
+                        <h2><a href="#participate"><%= researches[i].title %></a></h2>
+                        <p><%= researches[i].description %></p>
+                    </div>
+                    <a class="center participate" href="#participate">Participate</a>
+                </div>
+                <div class="participate <%= researches[i].path %>">
+                    <p class="progress"></p>
+                    <p class="result"></p>
+                </div>
+            <% } %>
+        </div>
+</body>
+</html>
