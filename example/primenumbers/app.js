@@ -175,6 +175,9 @@ io.sockets.on('connection', function (socket) {
       function(a, callback) { TaskSend(obj._id, callback) },
       TaskEmit]);
   });
+  socket.on('test', function(obj){
+    socket.emit('tested', obj);
+  })
 });
 
 console.log("Listening at port "+ port);

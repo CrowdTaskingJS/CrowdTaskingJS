@@ -8,6 +8,9 @@ var CT = {
         CT.socket.on('connected', function() {
             console.log("Connected to websockets");
         });
+        CT.socket.on('tested', function(data){
+          console.log("tested", data);
+        });
         CT.socket.on('task', function(data) {
             if (CT.worker !== undefined) {
                 CT.worker.postMessage({"task": data});
