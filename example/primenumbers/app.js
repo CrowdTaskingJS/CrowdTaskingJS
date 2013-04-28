@@ -76,7 +76,7 @@ app.post("/canvas/", function(req, res) {
   var decoded = base64decode(encoded);
   var data = JSON.parse(decoded);
   if (data.user_id) {
-    res.render("canvas.html", {"name": data.User});
+    res.render("canvas.html");
   } else {
     res.render("fb_redirect.html");
   }
