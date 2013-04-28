@@ -76,6 +76,10 @@ app.get("/api/researches", function(req, res) {
   });
 });
 
+app.get("/canvas/", function(req, res) {
+  res.render("canvas.html");
+});
+
 app.post("/canvas/", function(req, res) {
   var parts = req.body.signed_request.split('.');
   var encodedSignature = parts[0];
