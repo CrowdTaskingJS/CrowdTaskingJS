@@ -10,8 +10,10 @@ var port = process.env.PORT || 1234
   , https = require('https');
 
 // High order function helper
-var hh = function (hfunction) {
-  return hfunction;
+var hh = function (hfunction, data) {
+  return function(callback) {
+    hfunction(data, callback);
+  }
 };
 
 var base64encode = function(data) {
@@ -82,63 +84,67 @@ app.post("/canvas/", function(req, res) {
 
 var ResearchMemory = {};
 
-var ResearchPopulate = function (researchId) {
-
-  return function(callback) {
-    // If already in memory, skip and return
-    if (ResearchMemory[researchId]) {
-      return callback(null, ResearchMemory[researchId]);
-    }
-    // Find objects and require the file
-    Research.findById(researchId).exec(function(err, research) {
-      research.toObject();
-      research.code = require("."+research.url);
-      ResearchMemory[researchId] = research;
-      callback(err, ResearchMemory[researchId]);
-    })
-  };
+var ResearchPopulate = function (researchId, callback) {
+  // If already in memory, skip and return
+  if (ResearchMemory[researchId]) {
+    return callback(null, ResearchMemory[researchId]);
+  }
+  // Find objects and require the file
+  Research.findById(researchId).exec(function(err, research) {
+    research.toObject();
+    research.code = require("."+research.url);
+    ResearchMemory[researchId] = research;
+    callback(err, ResearchMemory[researchId]);
+  })
 };
 
 // Controller to go to next task and update the status
 var ResearchCtrl = function(researchId, result) {
   return {
-    // Goes to next status
-    nextTask: function (code, callback) {
-      return (code || ResearchMemory[researchId].code).generateTask(ResearchMemory[researchId].state, callback);
+    generateTask: function (obj, callback) {
+      return (obj || ResearchMemory[researchId]).code
+        .generateTask(ResearchMemory[researchId].state, callback);
     },
-    // Update the status
-    updateState: function(code, result, callback) {
-      return (code || ResearchMemory[researchId].code).updateState(ResearchMemory[researchId].state, result, callback);
+    updateState: function(obj, callback) {
+      return (obj || ResearchMemory[researchId]).code
+        .updateState(ResearchMemory[researchId].state, result, callback);
+    },
+    saveState: function(newState, callback) {
+      Research.findOneAndUpdate({_id: researchId}, {state: newState}, function(err, doc) {
+        if (err) console.log(err);
+        io.socket.emit('task', doc);
+      });
     }
   };
 };
 
+function TaskSend (researchId, callback) {
+  async.series([
+    hh(ResearchPopulate, researchId),
+    ResearchCtrl(researchId).generateTask
+  ], callback);
+}
+function TaskEmit (err, task){
+  if (err) console.log(err);
+  io.socket.emit('task', task);
+}
+
+function StateUpdate (d, callback) {
+  async.series([
+   hh(ResearchPopulate, d.researchId),
+   ResearchCtrl(d.researchId, d.result).updateState
+  ], function(err, newState) {
+   Research.findOneAndUpdate({_id: d.researchId}, {state: newState}, callback);
+  });
+}
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
 
-  socket.on('research', function(researchId) {
-    async.series([
-      ResearchPopulate(researchId),
-      ResearchCtrl(researchId).nextTask
-    ], function(err, task){
-      if (err) console.log(err);
-      socket.emit('task', task);
-    });
+  socket.on('research', function(data) {
+    async.waterfall([hh(TaskSend, data), TaskEmit]);
   });
   socket.on('result', function(researchId, result) {
-    async.series([
-      ResearchPopulate(researchId),
-      ResearchCtrl(researchId, result).updateState,
-      ResearchCtrl(researchId).nextTask
-    ], function(err, task) {
-      if (err) console.log(err);
-      socket.emit('task', task);
-    });
-    /* Research.findOneAndUpdate({_id: research}, {state: result}, function(err, doc) {
-      if (err) console.log(err);
-      socket.emit('task', doc);
-    });
-    */
+    async.waterfall(hh(StateUpdate, {researchId: researchId, result:result}), TaskSend, TaskEmit);
   });
 });
 
