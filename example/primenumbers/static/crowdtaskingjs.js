@@ -22,7 +22,7 @@ var CT = {
             CT.stop();
             return false;
         });
-        $("a.contribute").click(function() {
+        $("a.participate").click(function() {
             CT.stop();
 
             CT.researchId = $(this).parents("div.research").attr("id");
