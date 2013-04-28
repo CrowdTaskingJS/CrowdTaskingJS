@@ -1,4 +1,7 @@
 var CT = {
+    progresses: 0,
+    segmentedProgresses: 0,
+    results: 0,
     init: function() {
         CT.socketInit();
         CT.uiInit();
@@ -12,7 +15,6 @@ var CT = {
           console.log("tested", data);
         });
         CT.socket.on('task', function(data) {
-          console.log(data);
             if (CT.worker !== undefined) {
                 CT.worker.postMessage({"task": data});
             }
@@ -38,12 +40,15 @@ var CT = {
             CT.worker.addEventListener('message', function(event) {
                 if ("progress" in event.data) {
                     $("#" + CT.researchPath + " .progress").text(event.data.progress);
+                  $("#" + CT.researchPath + " .progresses").text((++CT.progresses).toString());
                 }
                 if ("result" in event.data) {
                     event.data._id = CT.researchId;
+                    CT.results++;
+                    $("#" + CT.researchPath + " .results").text((++CT.results).toString());
 
                     CT.socket.emit("result", event.data);
-                    $("#" + CT.researchPath + " .result").text(JSON.stringify(event.data.result));
+                    $("#" + CT.researchPath + " .result").text(event.data.result.nextPrime);
                 }
             });
 
@@ -62,6 +67,10 @@ var CT = {
 }
 $(document).ready(function() {
     CT.init();
+    setInterval(function(){
+      $("#" + CT.researchPath + " .persecond").text(CT.progresses - CT.segmentedProgresses);
+      CT.segmentedProgresses = CT.progresses;
+    }, 1000)
 });
 
 

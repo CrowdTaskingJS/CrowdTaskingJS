@@ -104,6 +104,7 @@ app.get("/canvas/", function(req, res) {
 });
 
 var ResearchMemory = {};
+var UserCounter = 0;
 
 var ResearchPopulate = function (researchId, callback) {
   // If already in memory, skip and return
@@ -161,6 +162,7 @@ function StateUpdate (d, callback) {
 }
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
+  UserCounter
 
   socket.on('research', function(researchId) {
     console.log(researchId);

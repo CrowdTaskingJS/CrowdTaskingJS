@@ -2,8 +2,8 @@ body {
   font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
 }
 .header h1 {
-  font-family: 'Montez';
-  font-weight: normal !important;
+  font-family: "Helvetica Neue";
+  font-weight: 200 !important;
   text-rendering: optimizelegibility;
   font-size: 60px;
   text-align: center;
@@ -70,7 +70,8 @@ body {
   border-radius: 3px;
   float: left;
 }
-.participate {
+.participate,
+.stop {
   background-color: #758ab7;
   border-color: #475d91 #3c5389 #3a5186;
   border-radius: 3px;
@@ -82,4 +83,54 @@ body {
   float: right;
   padding: 7px 20px;
   cursor: pointer;
+}
+.red {
+  background-color: #f32020 !important;
+}
+.hidden {
+  display: none;
+}
+.datas .inner {
+  background: #484a63;
+  padding: 30px 10px;
+  color: #c9c3e6;
+}
+.datas .slot {
+  display: inline-block;
+  text-align: center;
+  width: 18%;
+}
+.datas .progresses,
+.datas .results {
+  border: 10px solid;
+  border-radius: 999px;
+  font-size: 20px;
+  text-align: center;
+  width: 80px;
+  height: 80px;
+  display: block;
+  line-height: 75px;
+  margin-left: 27px;
+}
+.datas .persecond {
+  font-size: 30px;
+  display: block;
+  height: 70px;
+}
+.datas .progress,
+.datas .result {
+  font-size: 25px;
+  display: block;
+  height: 65px;
+}
+.datas .progress {
+  font-size: 25px;
+  display: block;
+  height: 65px;
+}
+.datas .progresses {
+  border-color: #cc0000;
+}
+.datas .results {
+  border-color: #00cc00;
 }

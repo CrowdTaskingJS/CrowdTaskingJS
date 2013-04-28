@@ -20,7 +20,7 @@ var Research = {
     execute: function(params) {
         var current = params.highestPrime + 2;
         while (!this.internal.isPrime(current)) {
-            progress("Trying " + current);
+            progress(current);
             current += 2;
         }
         return {"nextPrime": current};

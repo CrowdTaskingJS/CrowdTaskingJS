@@ -3,9 +3,6 @@
         <title>CrowdTaskingJS</title>
         <meta name="description" content="Distributed computing in your browser" />
         <link rel="stylesheet" href="/crowdtaskingjs.css" />
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="/jquery-1.9.1.min.js"></script>
-        <script src="/crowdtaskingjs.js"></script>
     </head>
     <body>
         <div class="container">
@@ -26,13 +23,32 @@
                 </section>
                 <footer>
                   <a class="participate">Join</a>
+                  <a class="stop red hidden">Stop</a>
                 </footer>
                 <div class="datas">
-                  <p class="progress"></p>
-                  <p class="result"></p>
+                  <div class="inner">
+                    <div class="slot last_found"><span class="progress">0</span><h3>Last attempt</h3></div>
+                    <div class="slot"><span class="result">0</span><h3>Last solution</h3></div>
+                    <div class="slot"><span class="results">0</span><h3>Solutions found</h3></div>
+                    <div class="slot"><span class="progresses">0</span><h3>Attempts</h3></div>
+                    <div class="slot"><span class="persecond">0</span><h3>attempts/second</h3></div>
+                  </div>
                 </div>
               </div>
             <% } %>
         </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/jquery-1.9.1.min.js"></script>
+        <script src="/crowdtaskingjs.js"></script>
+        <script type="text/javascript">
+          $("footer .participate").click(function(){
+            $(this).toggleClass('hidden');
+            $("footer .stop").toggleClass('hidden');
+          });
+          $("footer .stop").click(function(){
+            $(this).toggleClass('hidden');
+            $("footer .participate").toggleClass('hidden');
+          })
+        </script>
 </body>
 </html>
