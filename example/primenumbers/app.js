@@ -162,7 +162,7 @@ function StateUpdate (d, callback) {
 }
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
-  UserCounter
+  UserCounter += 1;
 
   socket.on('research', function(researchId) {
     console.log(researchId);
