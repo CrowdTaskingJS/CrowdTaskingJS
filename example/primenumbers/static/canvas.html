@@ -1,86 +1,81 @@
 <html>
+    <head>
+        <title>CrowdTaskingJS</title>
+        <meta name="description" content="Distributed computing in your browser" />
+        <link rel="stylesheet" href="/bootstrap/css/bootstrap.css" />
+        <link rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css" />
+        <link rel="stylesheet" href="/crowdtaskingjs.css" />
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/jquery-1.9.1.min.js"></script>
+        <script src="/bootstrap/js/bootstrap.min.js"></script>
+        <script src="/crowdtaskingjs.js"></script>
+    </head>
     <body>
-        <p id="results">Results:</p>
-        <script tpye="text/javascript">
-            var Research = {
-                client: {
-                    internal: {
-                        isPrime: function(possible) {
-                            if (possible == 2 || possible == 3) {
-                                return true;
-                            }
-                            if (possible % 2 == 0 || possible % 3 == 0) {
-                                return false;   
-                            }
-                            var k = 6;
-                            var max = Math.sqrt(possible);
-                            for (; k <= max; k += 6) {
-                                if (possible % (k+1) == 0 || possible % (k-1) == 0) {
-                                    return false;
-                                }
-                            }
-                            return true;
-                        }
-                    },
-                    execute: function(params) {
-                        var current = params.highestPrime + 2;
-                        while (!this.internal.isPrime(current)) {
-                            current += 2;
-                        }
-                        return {"nextPrime": current};
-                    }
-                },
-                server: {
-                    updateState: function(state, result) {
-                        if (state === undefined || result === undefined) {
-                            return {"highestPrime": 3};
-                        }
-                        state.highestPrime = Math.max(state.highestPrime, result.nextPrime);
-                        return state;
-                    },
-                    generateTask: function(state) {
-                        return state;
-                    }
-                }
-            }
-
-            var Server = {
-                state: Research.server.updateState(),
-                onConnection: function(client) {
-                    this.client = client;
-                    client.onConnected();
-                },
-                onResearch: function() {
-                    this.client.onTask(Research.server.generateTask(this.state), Research.client);
-                },
-                onResult: function(result, another) {
-                    document.getElementById("results").innerHTML += " " + result.nextPrime;
-                    this.state = Research.server.updateState(this.state, result);
-                    if (another) {
-                        this.client.onTask(Research.server.generateTask(this.state));
-                    }
-                }
-            }
-
-            var Client = {
-                count: 50,
-                emitConnection: function(server) {
-                    this.server = server;
-                    server.onConnection(this);
-                },
-                onConnected: function() {
-                    this.server.onResearch();
-                },
-                onTask: function(task, research) {
-                    if (research !== undefined) {
-                        this.research = research;
-                    }
-                    var result = this.research.execute(task);
-                    this.server.onResult(result, this.count--);
-                }
-            }
-
-            Client.emitConnection(Server);
-        </script>
-    </body>
+        <div class="container">
+            <div class="leaderboard">
+                <h1>Distributed computing for the masses.</h1>
+                <h3>Contribute your processing power today.</h3>
+            </div>
+            <div class="row research primenumbers" id="primenumbers">
+                <div class="row">
+                    <div class="span12">
+                        <h2>Compute Primes</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="span2">
+                        <img src="/researchjs/primenumbers/icon.jpg" />
+                    </div>
+                    <div class="span2">
+                        Process for William today
+                        <a class="btn btn-success btn-large contribute" href="#contribute">Contribute</a>
+                    </div>
+                    <div class="span8">
+                        <p>Computing big primes is hard, especially if you've the mind to crack RSA.</p>
+                        <p>Contribute your CPU cycles to the ultimate challenge.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row participate primenumbers">
+                <div class="span12">
+                    <p>Highest Prime: 227</p>
+                    <p>Time since last Prime: 1 hr, 5 min</p>
+                    <p class="message"></p>
+                    <p class="results">Results:</p>
+                    <a class="btn btn-success btn-large cancel" href="#">Cancel</a>
+                </div>
+            </div>
+            <div class="row research fibonacci" id="fibonacci">
+                <div class="row">
+                    <div class="span12">
+                        <h2>Compute Fibonacci Numbers</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="span2">
+                        <img src="/researchjs/fibonacci/icon.jpg" />
+                    </div>
+                    <div class="span2">
+                        Process for Ryan today
+                        <a class="btn btn-success btn-large contribute" href="#contribute">Contribute</a>
+                    </div>
+                    <div class="span8">
+                        <p>Something something</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row participate fibonacci">
+                <div class="span12">
+                    <p>Highest number: 8</p>
+                    <p>Time since last results: 18 hrs, 5 min</p>
+                    <p class="message"></p>
+                    <p class="results">Results:</p>
+                    <a class="btn btn-success btn-large cancel" href="#">Cancel</a>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>&copy;CrowdTaskingJS 2013</p>
+        </footer>
+</body>
 </html>

@@ -26,12 +26,15 @@ var Research = {
         return {"nextPrime": current};
     }
 }
-progress = function(progress) {
-    postMessage({"progress": progress});
+var progress = function(progress) {
+    self.postMessage({"progress": progress});
 }
-onmessage = function(event) {
+self.addEventListener('message', function(event) {
     if ("task" in event.data) {
         var result = Research.execute(event.data.task);
-        postMessage({"result": result});
+        self.postMessage({"results": result});
     }
-};
+    if ("cancel" in event.data) {
+        self.close();
+    }
+});
