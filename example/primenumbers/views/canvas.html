@@ -15,9 +15,9 @@
                 <h2>Distributed computing in your browser</h2>
             </div>
             <% for(var i=0; i<researches.length; i++) {%>
-              <div class="research <%= researches[i].path %>" id="<%= researches[i].path %>">
+              <div class="research <%= researches[i].path %>" id="<%= researches[i].path %>" data-id="<%= researches[i]._id %>">
                 <header>
-                  <img src="/researchjs/primenumbers/icon.jpg" />
+                  <img src="/researchjs/<%= researches[i].path %>/icon.jpg" />
                   <h2><a href="#participate"><%= researches[i].title %></a></h2>
                 </header>
                 <section>
