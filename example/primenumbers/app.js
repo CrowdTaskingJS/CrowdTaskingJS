@@ -112,7 +112,7 @@ var ResearchCtrl = function(researchId, result) {
     saveState: function(newState, callback) {
       Research.findOneAndUpdate({_id: researchId}, {state: newState}, function(err, doc) {
         if (err) console.log(err);
-        io.socket.emit('task', doc);
+        callback(err, doc);
       });
     }
   };
@@ -132,10 +132,9 @@ function TaskEmit (err, task){
 function StateUpdate (d, callback) {
   async.series([
    hh(ResearchPopulate, d.researchId),
-   ResearchCtrl(d.researchId, d.result).updateState
-  ], function(err, newState) {
-   Research.findOneAndUpdate({_id: d.researchId}, {state: newState}, callback);
-  });
+   ResearchCtrl(d.researchId, d.result).updateState,
+   ResearchCtrl(d.researchId).saveState
+  ], callback);
 }
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
@@ -144,7 +143,7 @@ io.sockets.on('connection', function (socket) {
     async.waterfall([hh(TaskSend, data), TaskEmit]);
   });
   socket.on('result', function(researchId, result) {
-    async.waterfall(hh(StateUpdate, {researchId: researchId, result:result}), TaskSend, TaskEmit);
+    async.waterfall([hh(StateUpdate, {researchId: researchId, result:result}), hh(TaskSend,researchId), TaskEmit]);
   });
 });
 
