@@ -6,12 +6,10 @@ var CT = {
     socketInit: function() {
         CT.socket = io.connect();
         CT.socket.on('connected', function() {
-          console.log("Connected to websockets");
-        })
+            console.log("Connected to websockets");
+        });
         CT.socket.on('task', function(data) {
-          console.log("task");
             if (CT.worker !== undefined) {
-              console.log(data);
                 CT.worker.postMessage({"task": data});
             }
         });
@@ -22,32 +20,31 @@ var CT = {
             CT.stop();
             return false;
         });
-        $("a.participate").click(function() {
+        $("div.research a").click(function() {
             CT.stop();
 
-            CT.researchId = $(this).parents("div.research").attr("id");
-            $("div.participate." + CT.researchId).show();
+            var researchDom = $(this).parents("div.research");
+            CT.researchPath = researchDom.attr("id");
+            CT.researchId = researchDom.data("id");
+            //$("div.participate." + CT.researchPath).show();
 
             // TODO check this
 
-            CT.worker = new Worker("/researchjs/" + CT.researchId + "/client.js");
+            CT.worker = new Worker("/researchjs/" + CT.researchPath + "/client.js");
             CT.worker.addEventListener('message', function(event) {
                 if ("progress" in event.data) {
-                    $("div.participate." + CT.researchId + " .progress").text(event.data.progress);
+                    $("div.participate." + CT.researchPath + " .progress").text(event.data.progress);
                 }
                 if ("result" in event.data) {
-                    $("div.participate." + CT.researchId + " .result").text(event.data.result);
-                  //TODO fix this
-                    event.data._id = "517ca5a905cef40000000001"
-                  console.log(event.data);
+                    $("div.participate." + CT.researchPath + " .result").text(event.data.result);
+                    //TODO fix this
+                    event.data._id = CT.researchId;
                     CT.socket.emit("result", event.data);
-                    $("div.participate." + researchId + " .result").text(event.data.result);
-                    CT.socket.emit('result', event.data.result);
-
+                    $("div.participate." + CT.researchPath + " .result").text(event.data.result);
                 }
             });
 
-            CT.socket.emit('research', "517ca5a905cef40000000001");
+            CT.socket.emit('research', CT.researchId);
 
             return false;
         });

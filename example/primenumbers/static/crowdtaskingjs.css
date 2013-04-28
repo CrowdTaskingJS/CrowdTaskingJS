@@ -1,6 +1,22 @@
 body {
   font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
 }
+.header h1 {
+  font-family: 'Montez';
+  font-weight: normal !important;
+  text-rendering: optimizelegibility;
+  font-size: 60px;
+  text-align: center;
+  color: rgba(58, 88, 151, 0.8);
+  text-shadow: 1px 4px 6px #def, 0 0 0 #000, 1px 4px 6px #def;
+  margin-bottom: -23px;
+  margin-top: 35px;
+}
+.header h2 {
+  font-weight: 100;
+  color: #adb3bc;
+  text-align: center;
+}
 .container {
   width: 80%;
   margin: auto;
@@ -65,4 +81,5 @@ body {
   -webkit-font-smoothing: antialiased;
   float: right;
   padding: 7px 20px;
+  cursor: pointer;
 }
