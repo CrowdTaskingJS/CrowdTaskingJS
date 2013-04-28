@@ -8,7 +8,6 @@ if (!this.db) {
 var ResearchSchema = new Schema({
   title: String,
   client: String,
-  execute: String,
   server: String,
   state: Schema.Types.Mixed
 });

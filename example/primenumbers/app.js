@@ -51,9 +51,9 @@ app.get("/api/researches", function(req, res) {
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
 
-  socket.on('research', function(research) {
-    Research.findById(research).exec(function(docs) {
-      socket.emit('task', docs);
+  socket.on('research', function(researchId) {
+    Research.findById(researchId).exec(function(research) {
+      socket.emit('task', research);
     })
   });
   socket.on('result', function(research, result) {

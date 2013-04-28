@@ -1,5 +1,5 @@
 function DistributedTasks () {
-
+  this.setup();
 }
 
 DistributedTasks.prototype.setup = function (options) {
@@ -8,19 +8,24 @@ DistributedTasks.prototype.setup = function (options) {
     this.researchSet(research);
   });
 
-  this.socket.on('task', function() {
+  this.socket.on('task', function(research) {
+    code && this.evalCode(research.client);
     this.taskExecute(research);
   });
 };
 
-DistributedTasks.prototype.researchSet = function (research) {
-  this.socket('research', research);
+DistributedTasks.prototype.researchSet = function (researchId) {
+  this.socket.emit('research', researchId);
 };
 
 DistributedTasks.prototype.taskExecute = function (research) {
-  this.taskResult(task);
+  this.code(params, this.taskResult);
 };
 
 DistributedTasks.prototype.taskResult = function (task) {
   this.socket.emit('result', task);
+};
+
+DistributedTasks.prototype.evalCode = function (code) {
+ this.code = new Function(code);
 };
