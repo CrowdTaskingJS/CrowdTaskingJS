@@ -46,6 +46,14 @@ var app = express()
 
 if ( !process.env.HEROKU) server.listen(port);
 
+if ( process.env.HEROKU) {
+  io.configure(function () {
+    io.set("transports", ["xhr-polling"]);
+    io.set("polling duration", 10);
+  });
+}
+
+
 app.configure(function () {
   app.set("views", __dirname + "/static");
   app.set("view engine", "ejs");
