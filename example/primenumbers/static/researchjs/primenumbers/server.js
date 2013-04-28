@@ -1,4 +1,4 @@
-var server = {
+module.exports = {
   updateState: function(state, result) {
     if (state === undefined || result === undefined) {
       return {"highestPrime": 3};
@@ -10,5 +10,3 @@ var server = {
     return state;
   }
 };
-
-module.exports = server;

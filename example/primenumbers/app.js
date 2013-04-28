@@ -9,6 +9,24 @@ var port = process.env.PORT || 1234
   , http = require('http')
   , https = require('https');
 
+// High order function helper
+var hh = function (hfunction) {
+  return hfunction;
+};
+
+var base64encode = function(data) {
+  return new Buffer(data, 'utf8').toString('base64').replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '');
+};
+
+var base64decode = function(data) {
+  while (data.length % 4 !== 0) {
+    data += '=';
+  }
+  data = data.replace(/-/g, '+').replace(/_/g, '/');
+  return new Buffer(data, 'base64').toString('utf-8');
+};
+
+
 if (!process.env.HEROKU) {
   var privateKey = fs.readFileSync('privatekey.pem').toString()
     , certificate = fs.readFileSync('certificate.pem').toString();
@@ -62,31 +80,63 @@ app.post("/canvas/", function(req, res) {
   }
 });
 
-var base64encode = function(data) {
-  return new Buffer(data, 'utf8').toString('base64').replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '');
+var ResearchMemory = {};
+
+var ResearchPopulate = function (researchId) {
+
+  return function(callback) {
+    // If already in memory, skip and return
+    if (ResearchMemory[researchId]) {
+      return callback(null, ResearchMemory[researchId]);
+    }
+    // Find objects and require the file
+    Research.findById(researchId).exec(function(err, research) {
+      ResearchMemory[researchId] = require("."+research.url);
+      callback(err, ResearchMemory[researchId]);
+    })
+  };
 };
 
-var base64decode = function(data) {
-  while (data.length % 4 !== 0) {
-    data += '=';
-  }
-  data = data.replace(/-/g, '+').replace(/_/g, '/');
-  return new Buffer(data, 'base64').toString('utf-8');
+// Controller to go to next task and update the status
+var ResearchCtrl = function(researchId) {
+  return {
+    // Goes to next status
+    nextTask: function (code, callback) {
+      return (code || ResearchMemory[researchId]).generateTask(callback);
+    },
+    // Update the status
+    updateState: function(code, callback) {
+      return (code || ResearchMemory[researchId]).updateState(callback);
+    }
+  };
 };
 
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
 
   socket.on('research', function(researchId) {
-    Research.findById(researchId).exec(function(research) {
-      socket.emit('task', research);
-    })
+    async.series([
+      ResearchPopulate(researchId),
+      ResearchCtrl(researchId).nextTask
+    ], function(err, task){
+      if (err) console.log(err);
+      socket.emit('task', task);
+    });
   });
   socket.on('result', function(research, result) {
-    Research.findOneAndUpdate({_id: research}, {state: result}, function(err, doc) {
+    async.series([
+      ResearchPopulate(researchId),
+      ResearchCtrl(researchId).updateState,
+      ResearchCtrl(researchId).nextTask
+    ], function(err, task) {
+      if (err) console.log(err);
+      socket.emit('task', task);
+    });
+    /* Research.findOneAndUpdate({_id: research}, {state: result}, function(err, doc) {
       if (err) console.log(err);
       socket.emit('task', doc);
     });
+    */
   });
 });
 
