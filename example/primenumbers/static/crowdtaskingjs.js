@@ -4,7 +4,7 @@ var CT = {
         CT.uiInit();
     },
     socketInit: function() {
-        CT.socket = io.connect('https://localhost:1234/');
+        CT.socket = io.connect();
         CT.socket.on('task', function(data) {
           console.log("task");
             if (CT.worker !== undefined) {
