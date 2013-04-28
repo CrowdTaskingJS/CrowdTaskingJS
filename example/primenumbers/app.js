@@ -91,8 +91,9 @@ var ResearchPopulate = function (researchId, callback) {
   }
   // Find objects and require the file
   Research.findById(researchId).exec(function(err, research) {
-    research.toObject();
-    research.code = require("."+research.url);
+    if (err || !research) return console.log("DB", err);
+    research = research.toObject();
+    research.code = require("./static"+research.url+"/server.js");
     ResearchMemory[researchId] = research;
     callback(err, ResearchMemory[researchId]);
   })
@@ -119,18 +120,18 @@ var ResearchCtrl = function(researchId, result) {
 };
 
 function TaskSend (researchId, callback) {
-  async.series([
+  async.waterfall([
     hh(ResearchPopulate, researchId),
     ResearchCtrl(researchId).generateTask
   ], callback);
 }
-function TaskEmit (err, task){
-  if (err) console.log(err);
-  io.socket.emit('task', task);
+function TaskEmit (task, callback){
+  io.sockets.emit('task', task);
+  callback();
 }
 
 function StateUpdate (d, callback) {
-  async.series([
+  async.waterfall([
    hh(ResearchPopulate, d.researchId),
    ResearchCtrl(d.researchId, d.result).updateState,
    ResearchCtrl(d.researchId).saveState
@@ -139,14 +140,26 @@ function StateUpdate (d, callback) {
 io.sockets.on('connection', function (socket) {
   socket.emit("connected", 1);
 
-  socket.on('research', function(data) {
-    async.waterfall([hh(TaskSend, data), TaskEmit]);
+  socket.on('research', function(researchId) {
+    console.log(researchId);
+    async.waterfall([
+      hh(StateUpdate, {researchId: researchId}),
+      function(a,callback) { TaskSend(researchId, callback) },
+      TaskEmit]
+    );
   });
-  socket.on('result', function(researchId, result) {
-    async.waterfall([hh(StateUpdate, {researchId: researchId, result:result}), hh(TaskSend,researchId), TaskEmit]);
+  socket.on('result', function(obj) {
+    async.waterfall([
+      hh(StateUpdate,{researchId: obj._id, result:obj.result}),
+      function(a, callback) { TaskSend(obj._id, callback) },
+      TaskEmit]);
   });
 });
 
 console.log("Listening at port "+ port);
-var test = new Research({title: "Prime numbers", url: "/researchjs/primenumbers"});
-test.save(function(err){ if (err) console.log(err); });
+Research.findOne({url:"/researchjs/primenumbers"}).exec(function(err, doc) {
+  if (doc) return;
+
+  var test = new Research({title: "Prime numbers", url: "/researchjs/primenumbers"});
+  test.save(function(err){ if (err) console.log(err); });
+});

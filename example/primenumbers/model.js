@@ -2,7 +2,7 @@ var mongoose = require('mongoose')
   , Schema = mongoose.Schema;
 
 if (!this.db) {
-  this.db = mongoose.connect(process.env.MONGOHQ_URL || 'mongodb://localhost/crowdtesting_test');
+  this.db = mongoose.connect(process.env.MONGOHQ_URL || 'mongodb://localhost/crowdtesting_test1');
 }
 
 var ResearchSchema = new Schema({
