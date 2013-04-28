@@ -91,8 +91,12 @@ app.post("/canvas/", function(req, res) {
       res.render("canvas.html");
     });
   } else {
-    res.render("fb_redirect.html");
+    res.render("./fb_redirect.html");
   }
+});
+
+app.get("/test", function(req, res){
+  res.render("./fb_redirect.html");
 });
 
 app.get("/canvas/", function(req, res) {
