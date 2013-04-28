@@ -91,22 +91,24 @@ var ResearchPopulate = function (researchId) {
     }
     // Find objects and require the file
     Research.findById(researchId).exec(function(err, research) {
-      ResearchMemory[researchId] = require("."+research.url);
+      research.toObject();
+      research.code = require("."+research.url);
+      ResearchMemory[researchId] = research;
       callback(err, ResearchMemory[researchId]);
     })
   };
 };
 
 // Controller to go to next task and update the status
-var ResearchCtrl = function(researchId) {
+var ResearchCtrl = function(researchId, result) {
   return {
     // Goes to next status
     nextTask: function (code, callback) {
-      return (code || ResearchMemory[researchId]).generateTask(callback);
+      return (code || ResearchMemory[researchId].code).generateTask(ResearchMemory[researchId].state, callback);
     },
     // Update the status
-    updateState: function(code, callback) {
-      return (code || ResearchMemory[researchId]).updateState(callback);
+    updateState: function(code, result, callback) {
+      return (code || ResearchMemory[researchId].code).updateState(ResearchMemory[researchId].state, result, callback);
     }
   };
 };
@@ -123,10 +125,10 @@ io.sockets.on('connection', function (socket) {
       socket.emit('task', task);
     });
   });
-  socket.on('result', function(research, result) {
+  socket.on('result', function(researchId, result) {
     async.series([
       ResearchPopulate(researchId),
-      ResearchCtrl(researchId).updateState,
+      ResearchCtrl(researchId, result).updateState,
       ResearchCtrl(researchId).nextTask
     ], function(err, task) {
       if (err) console.log(err);

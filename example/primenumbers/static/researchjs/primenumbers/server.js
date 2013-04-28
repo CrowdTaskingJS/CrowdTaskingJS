@@ -1,12 +1,12 @@
 module.exports = {
-  updateState: function(state, result) {
+  updateState: function(state, result, callback) {
     if (state === undefined || result === undefined) {
-      return {"highestPrime": 3};
+      return callback({"highestPrime": 3});
     }
     state.highestPrime = Math.max(state.highestPrime, result.nextPrime);
-    return state;
+    return callback(state);
   },
-  generateTask: function(state) {
-    return state;
+  generateTask: function(state, callback) {
+    callback(state);
   }
 };
