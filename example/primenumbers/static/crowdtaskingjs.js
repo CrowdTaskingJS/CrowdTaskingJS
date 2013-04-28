@@ -5,6 +5,9 @@ var CT = {
     },
     socketInit: function() {
         CT.socket = io.connect();
+        CT.socket.on('connected', function() {
+          console.log("Connected to websockets");
+        })
         CT.socket.on('task', function(data) {
           console.log("task");
             if (CT.worker !== undefined) {
