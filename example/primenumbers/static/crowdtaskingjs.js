@@ -41,6 +41,7 @@ var CT = {
                 }
                 if ("result" in event.data) {
                     event.data._id = CT.researchId;
+
                     CT.socket.emit("result", event.data);
                     $("#" + CT.researchPath + " .result").text(JSON.stringify(event.data.result));
                 }

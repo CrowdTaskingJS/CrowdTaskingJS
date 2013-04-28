@@ -165,16 +165,53 @@ io.sockets.on('connection', function (socket) {
   socket.on('research', function(researchId) {
     console.log(researchId);
     async.waterfall([
-      hh(StateUpdate, {researchId: researchId}),
-      function(a,callback) { TaskSend(researchId, callback) },
-      TaskEmit]
-    );
+      function(callback) {
+        if (!ResearchMemory[researchId]) {
+          Research.findById(researchId).exec(function(err, doc) {
+            if (!doc) return callback("error");
+            ResearchMemory[researchId] = doc.toObject();
+            ResearchMemory[researchId].code = require("./static/researchjs/"+ResearchMemory[researchId].path+"/server.js");
+            callback(err);
+          });
+        } else {
+          callback(null);
+        }
+
+      },
+      function(callback) {
+        ResearchMemory[researchId].code.updateState(ResearchMemory[researchId].state, false, function(err, state){
+          console.log("AAAAA", ResearchMemory[researchId].state);
+          ResearchMemory[researchId].state = state;
+          callback(err);
+        });
+      },
+      function(callback) {
+        ResearchMemory[researchId].code.generateTask(ResearchMemory[researchId].state, function(err, state){
+          callback(err);
+        })
+      }
+    ], function(err) {
+      if (err) return console.log("ERR", err);
+      socket.emit('task', ResearchMemory[researchId].state);
+    });
   });
   socket.on('result', function(obj) {
     async.waterfall([
-      hh(StateUpdate,{researchId: obj._id, result:obj.result}),
-      function(a, callback) { TaskSend(obj._id, callback) },
-      TaskEmit]);
+      function(callback) {
+        ResearchMemory[obj._id].code.updateState(ResearchMemory[obj._id].state, obj.result, function(err, state){
+          ResearchMemory[obj._id].state = state;
+          callback(err);
+        });
+      },
+      function(callback) {
+        ResearchMemory[obj._id].code.generateTask(ResearchMemory[obj._id].state, function(err, state){
+          callback(err);
+        })
+      }
+    ], function(err) {
+      if (err) return console.log("ERR", err);
+      socket.emit('task', ResearchMemory[obj._id].state);
+    });
   });
   socket.on('test', function(obj){
     socket.emit('tested', obj);
