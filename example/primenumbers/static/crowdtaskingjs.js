@@ -33,6 +33,8 @@ var CT = {
                 }
             });
 
+            CT.socket.emit('research', researchId);
+
             return false;
         });
     },
